@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "authorization-service"
+version = "0.1.0"
+description = ""
+authors = ["Kirill8769 <tkkrozn@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+django = "^5.0.6"
+python-dotenv = "^1.0.1"
+psycopg2-binary = "^2.9.9"
+
+
+[tool.poetry.group.lint.dependencies]
+flake8 = "^7.1.0"
+isort = "^5.13.2"
+
+[tool.isort]
+line_length = 119
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
