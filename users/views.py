@@ -1,3 +1,4 @@
+import time
 from random import randint
 
 from django.http import HttpResponseRedirect
@@ -5,13 +6,13 @@ from django.shortcuts import redirect
 from django.urls import reverse_lazy, reverse
 from django.views.generic import CreateView, TemplateView, UpdateView
 
-from users.forms import UserForm, VerifyForm
+from users.forms import UserForm, VerificationCodeForm
 from users.models import User
 
 
 class UserAuthorization(TemplateView):
-    template_name = 'users/user_form.html'
-    success_url = reverse_lazy('users:verify_phone')
+    template_name = 'users/verification_phone.html'
+    success_url = reverse_lazy('users:verification_phone')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -26,48 +27,54 @@ class UserAuthorization(TemplateView):
 
     def form_valid(self, form):
         print('Создание нового пользователя')
-        phone_number = form['phone']
+        phone_number = form.cleaned_data['phone']
         print(phone_number)
         User.objects.create(phone=phone_number)
-        return redirect('users:user_create')
+        self.send_verification_code(phone_number=phone_number)
+        return redirect(self.success_url)
 
     def form_invalid(self, form):
         print('invalid')
+        phone_number = form['phone'].value()
+        print(phone_number)
+        if User.objects.filter(phone__contains=phone_number[-10:]).exists():
+            print('user uje est')
+            self.send_verification_code(phone_number=phone_number)
+            return redirect(self.success_url)
         return self.render_to_response({'form': form})
 
     def send_verification_code(self, phone_number):
         verification_code = randint(1000, 9999)
-        self.extra_context = {'info': f'Код верификации: {verification_code}'}
-        print(verification_code)
+        self.request.session['phone_number'] = phone_number
+        self.request.session['verification_code'] = verification_code
+        print('send', self.request.session)
 
 
 class UserUpdateView(UpdateView):
     model = User
     form_class = UserForm
-    success_url = reverse_lazy('users:main')
+#     success_url = reverse_lazy('users:main')
+#
+#     def form_valid(self, form):
+#         response = super().form_valid(form)
+#         # generate invite code
+#         return response
 
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        # generate invite code
-        return response
 
+class UserVerificationPhone(TemplateView):
+    template_name = 'users/verification_phone.html'
+    form_class = VerificationCodeForm
 
-class UserVerifyPhone(TemplateView):
-    template_name = 'users/verify_phone.html'
-    form_class = VerifyForm
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = self.form_class
+        return context
 
     def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST)
+        form = self.form_class(request.POST, request=request)
+        print('ver', form['input_code'].value())
+        print('r', request)
         if form.is_valid():
-            verification_code = form.cleaned_data['verification_code']
-
-            if self.verify_code(verification_code):
-                # Логика успешной верификации
-                return redirect('users:main')
-            else:
-                form.add_error('verification_code', 'Неверный код верификации')
-            return self.render_to_response({'form': form})
-
-    def verify_code(self, code):
-        # Логика проверки кода верификации
-        return True
+            print(111)
+        print(222)
+        return self.render_to_response({'form': form})

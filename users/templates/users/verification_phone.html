@@ -1,0 +1,22 @@
+{% extends 'general/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="col-12">
+    <div class="row">
+        <div class="col-4">
+
+        </div>
+        <div class="col-4">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <button type="submit" class="btn btn-success">Подтвердить</button>
+                <a href="{% url 'users:user_create' %}" class="btn btn-success">Назад</a>
+                <a href="{% url 'users:user_create' %}" class="btn btn-success">write sms</a>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

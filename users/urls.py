@@ -8,5 +8,5 @@ app_name = UsersConfig.name
 urlpatterns = [
     path('create/', views.UserAuthorization.as_view(), name='user_create'),
     path('update/<int:pk>/', views.UserUpdateView.as_view(), name='user_update'),
-    path('verify_phone/', views.UserVerifyPhone.as_view(), name='verify_phone'),
+    path('verification_phone/', views.UserVerificationPhone.as_view(), name='verification_phone'),
 ]
