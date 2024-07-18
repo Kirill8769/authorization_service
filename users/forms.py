@@ -43,7 +43,19 @@ class UserUpdateForm(forms.ModelForm):
         model = User
         fields = ('phone', 'my_invite_code', 'another_invite_code', )
 
-    # def __init__(self):
-    #     super().__init__()
-    #     self.fields['phone'].widget.attrs['readonly'] = True
-    #     self.fields['my_invite_code'].widget.attrs['readonly'] = True
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['phone'].widget.attrs['readonly'] = True
+        self.fields['my_invite_code'].widget.attrs['readonly'] = True
+
+    def clean_another_invite_code(self):
+        invite_codes = User.objects.values_list('my_invite_code', flat=True).exclude(my_invite_code=None)
+        print(invite_codes)
+        input_another_invite_code = self.cleaned_data['another_invite_code']
+        print(input_another_invite_code)
+        print(self.cleaned_data['my_invite_code'])
+        if input_another_invite_code and input_another_invite_code not in invite_codes:
+            raise forms.ValidationError('Введённый инвайт-код не существует')
+        if input_another_invite_code == self.cleaned_data['my_invite_code']:
+            raise forms.ValidationError('Вы не можете использовать свой инвайт-код')
+        return input_another_invite_code

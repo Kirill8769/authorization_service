@@ -59,6 +59,9 @@ class UserUpdateView(UpdateView):
     form_class = UserUpdateForm
     success_url = reverse_lazy('main:index')
 
+    def form_valid(self, form):
+        return super().form_valid(form)
+
 
 class UserVerificationPhone(TemplateView):
     template_name = 'users/verification_phone.html'
