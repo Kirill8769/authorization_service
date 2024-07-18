@@ -2,4 +2,4 @@ from django.views.generic import TemplateView
 
 
 class MainTemplateView(TemplateView):
-    template_name = 'main/main.html'
+    template_name = 'main/index.html'

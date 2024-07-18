@@ -5,7 +5,7 @@ from django import forms
 from users.models import User
 
 
-class UserForm(forms.ModelForm):
+class UserAuthorizationForm(forms.ModelForm):
     phone = forms.CharField(max_length=12, label='Введите номер телефона', required=True)
 
     class Meta:
@@ -22,13 +22,6 @@ class UserForm(forms.ModelForm):
         return phone_number
 
 
-class UserUpdateForm(forms.ModelForm):
-
-    class Meta:
-        model = User
-        fields = ('phone', 'my_invite_code', 'another_invite_code', )
-
-
 class VerificationCodeForm(forms.Form):
     input_code = forms.CharField(max_length=4, label='Введите код верификации', required=True)
 
@@ -40,7 +33,17 @@ class VerificationCodeForm(forms.Form):
         user_input_code = self.cleaned_data['input_code']
         verification_code = self.request.session.get('verification_code')
         if user_input_code != verification_code:
-            raise ValueError('Введён неверный код верификации')
+            raise forms.ValidationError('Введён неверный код верификации')
         return user_input_code
 
 
+class UserUpdateForm(forms.ModelForm):
+
+    class Meta:
+        model = User
+        fields = ('phone', 'my_invite_code', 'another_invite_code', )
+
+    # def __init__(self):
+    #     super().__init__()
+    #     self.fields['phone'].widget.attrs['readonly'] = True
+    #     self.fields['my_invite_code'].widget.attrs['readonly'] = True
