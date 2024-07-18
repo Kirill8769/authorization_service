@@ -1,16 +1,17 @@
 import string
+import time
 from random import choice, randint
 
 from django.contrib.auth import login, logout
 from django.shortcuts import redirect
 from django.urls import reverse_lazy, reverse
-from django.views.generic import TemplateView, UpdateView, View
+from django.views.generic import TemplateView, UpdateView, View, DetailView
 
-from users.forms import UserAuthorizationForm, VerificationCodeForm, UserUpdateForm
+from users.forms import UserAuthorizationForm, VerificationCodeForm, UserDetailForm, UserUpdateForm
 from users.models import User
 
 
-class UserInputPhone(TemplateView):
+class UserInputPhoneView(TemplateView):
     template_name = 'users/user_authorization.html'
     success_url = reverse_lazy('users:verification_phone')
 
@@ -27,7 +28,8 @@ class UserInputPhone(TemplateView):
 
     def form_valid(self, form):
         phone_number = form.cleaned_data['phone']
-        user = User.objects.create(phone=phone_number, password='V3oigTerFFd0Fe')
+        phone_number_ru = f'+7{phone_number[-10:]}'
+        user = User.objects.create(phone=phone_number_ru, password='V3oigTerFFd0Fe')
         user.my_invite_code = self.generate_invite_code()
         user.save()
         self.send_verification_code(phone_number=phone_number)
@@ -41,6 +43,7 @@ class UserInputPhone(TemplateView):
         return self.render_to_response({'form': form})
 
     def send_verification_code(self, phone_number):
+        time.sleep(randint(1, 2))
         verification_code = str(randint(1000, 9999))
         self.request.session['phone_number'] = phone_number
         self.request.session['verification_code'] = verification_code
@@ -53,17 +56,7 @@ class UserInputPhone(TemplateView):
         return invite_code
 
 
-class UserUpdateView(UpdateView):
-    model = User
-    template_name = 'users/user_update.html'
-    form_class = UserUpdateForm
-    success_url = reverse_lazy('main:index')
-
-    def form_valid(self, form):
-        return super().form_valid(form)
-
-
-class UserVerificationPhone(TemplateView):
+class UserVerificationPhoneView(TemplateView):
     template_name = 'users/verification_phone.html'
     form_class = VerificationCodeForm
     success_url = reverse_lazy('main:index')
@@ -96,3 +89,20 @@ class UserLogoutView(View):
     def get(self, request, *args, **kwargs):
         logout(request)
         return redirect(self.success_url)
+
+
+class UserDetailView(DetailView):
+    template_name = 'users/user_detail.html'
+    form_class = UserDetailForm
+    queryset = User.objects.all()
+
+
+class UserUpdateView(UpdateView):
+    form_class = UserUpdateForm
+    success_url = reverse_lazy('main:index')
+    queryset = User.objects.all()
+    
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs

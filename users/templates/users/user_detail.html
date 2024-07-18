@@ -1,0 +1,20 @@
+{% extends 'general/base.html' %}
+
+{% block content %}
+<div class="row g-0">
+    <div class="col-4"></div>
+    <div class="col-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Профиль</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Номер телефона:</strong> {{ object.phone }}</p>
+                    <p><strong>Мой инвайт-код:</strong> {{ object.my_invite_code }}</p>
+                    <p><strong>Активированный инвайт-код: </strong>{% if object.another_invite_code %}{{ object.another_invite_code }}{% else %}Не активирован{% endif %}</p>
+                    <a href="{% url 'main:index' %}" class="btn btn-success">Назад</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
