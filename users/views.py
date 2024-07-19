@@ -1,11 +1,13 @@
+import os
 import string
 import time
 from random import choice, randint
 
 from django.contrib.auth import login, logout
 from django.shortcuts import redirect
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse_lazy
 from django.views.generic import TemplateView, UpdateView, View, DetailView
+from dotenv import load_dotenv
 
 from users.forms import UserAuthorizationForm, VerificationCodeForm, UserDetailForm, UserUpdateForm
 from users.models import User
@@ -27,20 +29,26 @@ class UserInputPhoneView(TemplateView):
         return self.form_invalid(form)
 
     def form_valid(self, form):
-        phone_number = form.cleaned_data['phone']
-        phone_number_ru = f'+7{phone_number[-10:]}'
-        user = User.objects.create(phone=phone_number_ru, password='V3oigTerFFd0Fe')
-        user.my_invite_code = self.generate_invite_code()
-        user.save()
+        phone_number = self.format_phone_number(form.cleaned_data['phone'])
+        user, created = User.objects.get_or_create(phone=phone_number)
+        if created:
+            user.my_invite_code = self.generate_invite_code()
+            user.save()
         self.send_verification_code(phone_number=phone_number)
         return redirect(self.success_url)
 
     def form_invalid(self, form):
         phone_number = form['phone'].value()
-        if User.objects.filter(phone__contains=phone_number[-10:]).exists():
-            self.send_verification_code(phone_number=phone_number)
+        formatted_phone_number = self.format_phone_number(phone_number)
+        if User.objects.filter(phone=formatted_phone_number).exists():
+            print('exists')
+            self.send_verification_code(phone_number=formatted_phone_number)
             return redirect(self.success_url)
         return self.render_to_response({'form': form})
+
+    @staticmethod
+    def format_phone_number(phone_number):
+        return f'+7{phone_number[-10:]}'
 
     def send_verification_code(self, phone_number):
         time.sleep(randint(1, 2))
@@ -74,12 +82,11 @@ class UserVerificationPhoneView(TemplateView):
 
     def form_valid(self, form):
         phone_number = self.request.session['phone_number']
-        user = User.objects.filter(phone__contains=phone_number[-10:])[0]
+        user = User.objects.filter(phone=phone_number).first()
         login(self.request, user)
         return redirect(self.success_url)
 
     def form_invalid(self, form):
-        print('invalid', self.request.session['verification_code'])
         return self.render_to_response({'form': form})
 
 
