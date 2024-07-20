@@ -8,6 +8,6 @@
         {% endif %}
     <a href="{% url 'users:user_logout' %}" class="btn btn-success">Выйти</a>
 {% else %}
-    <a href="{% url 'users:user_create' %}" class="btn btn-success">Авторизоваться</a>
+    <a href="{% url 'users:user_authorization' %}" class="btn btn-success">Авторизоваться</a>
 {% endif %}
 {% endblock %}

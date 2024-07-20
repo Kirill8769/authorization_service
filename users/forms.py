@@ -57,9 +57,7 @@ class UserUpdateForm(forms.ModelForm):
 
     def clean_another_invite_code(self):
         invite_codes = User.objects.values_list('my_invite_code', flat=True).exclude(my_invite_code=None)
-        print(invite_codes)
         input_invite_code = self.cleaned_data['another_invite_code']
-        print(input_invite_code)
         if input_invite_code and input_invite_code not in invite_codes:
             raise forms.ValidationError('Введённый инвайт-код не существует')
         if input_invite_code == self.user.my_invite_code:
