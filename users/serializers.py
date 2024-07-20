@@ -5,13 +5,21 @@ from users.validators import PhoneValidator, InviteCodeValidator
 
 
 class UserSerializer(serializers.ModelSerializer):
+    other_users = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ('pk', 'phone', 'my_invite_code', 'another_invite_code', )
+        fields = ('pk', 'phone', 'my_invite_code', 'another_invite_code', 'other_users')
         validators = [
             PhoneValidator(phone_number='phone'),
         ]
+
+    def get_other_users(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            user = request.user
+            users = User.objects.filter(another_invite_code=user.my_invite_code).values('phone')
+            return users
 
 
 class InviteCodeSerializer(serializers.ModelSerializer):
