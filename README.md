@@ -91,7 +91,7 @@ docker-compose up -d
 ```
 
 #### Шаг 2. Верифицируйте номер телефона.  
-**POST** запрос на http://127.0.0.1:8000/users/api_verification/  
+**POST** запрос на `http://127.0.0.1:8000/users/api_verification/`  
 В body передайте JSON:
 ```json
 {
