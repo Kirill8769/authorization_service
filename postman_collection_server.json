@@ -1,0 +1,101 @@
+{
+	"info": {
+		"_postman_id": "7f931e46-5e1d-472a-b3c5-9f82c8037329",
+		"name": "authorization_service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "30342222"
+	},
+	"item": [
+		{
+			"name": "user_list",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://212.109.197.240/users/api_list"
+			},
+			"response": []
+		},
+		{
+			"name": "user_authorization",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"phone\": \"79998887766\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://212.109.197.240/users/api_authorization/"
+			},
+			"response": []
+		},
+		{
+			"name": "user_verification",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "3065",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"phone\": \"79998887766\",\n    \"code\": \"1634\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://212.109.197.240/users/api_verification/"
+			},
+			"response": []
+		},
+		{
+			"name": "user_detail",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzIxNDk4MzU3LCJpYXQiOjE3MjE0OTgwNTcsImp0aSI6ImY4MDJjMDEyNmIzYTRlMWU5YTRiMDNiMzNmM2U4OTU4IiwidXNlcl9pZCI6ODF9.YOR3k7XtIo2J0S0OITEL2HbydJbB1BSXtTaoGDk1n8E",
+						"type": "text"
+					}
+				],
+				"url": "http://212.109.197.240/users/api_detail/3/"
+			},
+			"response": []
+		},
+		{
+			"name": "user_update",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzIxNDk4NTMxLCJpYXQiOjE3MjE0OTgyMzEsImp0aSI6ImQ4YjE0MDE0MTIxZDRkZjc5ZDRjZGI1YTVmNDc5ZWQ1IiwidXNlcl9pZCI6ODN9.qs-LwVeoxPF_E_2SwYSpyuGtJl5hPdGqGj-iBhxJBLY",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"another_invite_code\": \"Oq77IO\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://212.109.197.240/users/api_update/3/"
+			},
+			"response": []
+		}
+	]
+}
