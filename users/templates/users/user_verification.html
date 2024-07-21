@@ -1,0 +1,41 @@
+{% extends 'general/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="col-12">
+    <div class="row">
+        <div class="col-4"></div>
+        <div class="col-4">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <button type="submit" class="btn btn-success">Подтвердить</button>
+                <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                    Прочитать СМС
+                </button>
+                <a href="{% url 'users:user_authorization' %}" class="btn btn-secondary">Назад</a>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+     aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="staticBackdropLabel">Код верификации</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {{ request.session.verification_code }}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Прочитано</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
