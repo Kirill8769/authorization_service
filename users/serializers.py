@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from users.models import User
-from users.validators import PhoneValidator, InviteCodeValidator
+from users.validators import InviteCodeValidator, PhoneValidator
 
 
 class UserSerializer(serializers.ModelSerializer):

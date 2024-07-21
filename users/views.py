@@ -2,18 +2,18 @@ from django.contrib.auth import login, logout
 from django.core.cache import cache
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
-from django.views.generic import TemplateView, UpdateView, View, DetailView
-from rest_framework.generics import RetrieveAPIView, UpdateAPIView, ListAPIView
+from django.views.generic import DetailView, TemplateView, UpdateView, View
+from rest_framework import status
+from rest_framework.generics import ListAPIView, RetrieveAPIView, UpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from users.forms import UserAuthorizationForm, VerificationCodeForm, UserDetailForm, UserUpdateForm
+from users.forms import UserAuthorizationForm, UserDetailForm, UserUpdateForm, VerificationCodeForm
 from users.models import User
 from users.permissions import IsUser
-from users.serializers import UserSerializer, InviteCodeSerializer
+from users.serializers import InviteCodeSerializer, UserSerializer
 from users.services import format_phone_number, generate_invite_code, send_verification_code
 
 
@@ -118,7 +118,7 @@ class UserUpdateView(UpdateView):
     form_class = UserUpdateForm
     success_url = reverse_lazy('main:index')
     queryset = User.objects.all()
-    
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
