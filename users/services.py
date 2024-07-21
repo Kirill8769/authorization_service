@@ -1,8 +1,7 @@
 import string
 import time
 import uuid
-from random import randint
-from random import choice
+from random import choice, randint
 
 
 def format_phone_number(phone_number: str, country: str = 'RU') -> str:
