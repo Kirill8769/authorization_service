@@ -5,7 +5,7 @@ from users.models import User
 
 
 class Command(BaseCommand):
-    help = "Create superuser"
+    help = "Создание суперпользователя."
 
     def handle(self, *args, **options):
         try:

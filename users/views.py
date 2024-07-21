@@ -1,7 +1,3 @@
-import time
-import uuid
-from random import randint
-
 from django.contrib.auth import login, logout
 from django.core.cache import cache
 from django.shortcuts import redirect
@@ -18,10 +14,12 @@ from users.forms import UserAuthorizationForm, VerificationCodeForm, UserDetailF
 from users.models import User
 from users.permissions import IsUser
 from users.serializers import UserSerializer, InviteCodeSerializer
-from users.services import format_phone_number, generate_invite_code
+from users.services import format_phone_number, generate_invite_code, send_verification_code
 
 
 class UserAuthorizationView(TemplateView):
+    """Контроллер формы авторизации."""
+
     template_name = 'users/user_authorization.html'
     success_url = reverse_lazy('users:user_verification')
 
@@ -42,25 +40,35 @@ class UserAuthorizationView(TemplateView):
         if created:
             user.my_invite_code = generate_invite_code()
             user.save()
-        self.send_verification_code(phone_number=phone_number)
+        verification_code = send_verification_code(phone_number=phone_number)
+        self.save_session(phone_number=phone_number, verification_code=verification_code)
         return redirect(self.success_url)
 
     def form_invalid(self, form):
         phone_number = form['phone'].value()
         formatted_phone_number = format_phone_number(phone_number)
         if User.objects.filter(phone=formatted_phone_number).exists():
-            self.send_verification_code(phone_number=formatted_phone_number)
+            verification_code = send_verification_code(phone_number=formatted_phone_number)
+            self.save_session(phone_number=phone_number, verification_code=verification_code)
             return redirect(self.success_url)
         return self.render_to_response({'form': form})
 
-    def send_verification_code(self, phone_number):
-        time.sleep(randint(1, 2))
-        verification_code = str(uuid.uuid4().int)[:4]
+    def save_session(self, phone_number: str, verification_code: str) -> None:
+        """
+        Сохраняет необходимые данные в сессию.
+
+        :param phone_number: Номер телефона.
+        :param verification_code: Код верификации.
+        :return: None
+        """
+
         self.request.session['phone_number'] = phone_number
         self.request.session['verification_code'] = verification_code
 
 
 class UserVerificationPhoneView(TemplateView):
+    """Контроллер формы верификации пользователя."""
+
     template_name = 'users/user_verification.html'
     form_class = VerificationCodeForm
     success_url = reverse_lazy('main:index')
@@ -87,6 +95,8 @@ class UserVerificationPhoneView(TemplateView):
 
 
 class UserLogoutView(View):
+    """Контроллер формы выхода из профиля."""
+
     success_url = reverse_lazy('main:index')
 
     def get(self, request, *args, **kwargs):
@@ -95,12 +105,16 @@ class UserLogoutView(View):
 
 
 class UserDetailView(DetailView):
+    """Контроллер формы детального просмотра профиля."""
+
     template_name = 'users/user_detail.html'
     form_class = UserDetailForm
     queryset = User.objects.all()
 
 
 class UserUpdateView(UpdateView):
+    """Контроллер формы изменения профиля."""
+
     form_class = UserUpdateForm
     success_url = reverse_lazy('main:index')
     queryset = User.objects.all()
@@ -112,6 +126,7 @@ class UserUpdateView(UpdateView):
 
 
 class UserAuthorizationAPIView(APIView):
+    """Контроллер авторизации пользователя по API."""
 
     def post(self, request):
         serializer = UserSerializer(data=request.data)
@@ -123,7 +138,7 @@ class UserAuthorizationAPIView(APIView):
             if created:
                 user.my_invite_code = generate_invite_code()
                 user.save()
-            verification_code = str(uuid.uuid4().int)[:4]
+            verification_code = send_verification_code(phone_number=formatted_phone_number)
             cache.set(formatted_phone_number, verification_code, timeout=600)
             verification_code = cache.get(formatted_phone_number)
             message = {
@@ -138,6 +153,7 @@ class UserAuthorizationAPIView(APIView):
 
 
 class UserVerificationAPIView(APIView):
+    """Контроллер верификации пользователя по API."""
 
     def post(self, request):
         phone_number = request.data.get('phone')
@@ -172,17 +188,23 @@ class UserVerificationAPIView(APIView):
 
 
 class UserListAPIView(ListAPIView):
+    """Контроллер вывода списка пользователей по API."""
+
     serializer_class = UserSerializer
     queryset = User.objects.all()
 
 
 class UserRetrieveAPIView(RetrieveAPIView):
+    """Контроллер просмотра профиля по API."""
+
     serializer_class = UserSerializer
     queryset = User.objects.all()
-    # permission_classes = [IsAuthenticated, IsUser]
+    permission_classes = [IsAuthenticated, IsUser]
 
 
 class UserUpdateAPIView(UpdateAPIView):
+    """Контроллер изменения профиля по API."""
+
     serializer_class = InviteCodeSerializer
     queryset = User.objects.all()
     permission_classes = [IsAuthenticated, IsUser]
@@ -190,5 +212,3 @@ class UserUpdateAPIView(UpdateAPIView):
     def get_serializer(self, *args, **kwargs):
         kwargs['user'] = self.request.user
         return super().get_serializer(*args, **kwargs)
-
-

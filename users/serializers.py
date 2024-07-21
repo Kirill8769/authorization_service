@@ -5,6 +5,8 @@ from users.validators import PhoneValidator, InviteCodeValidator
 
 
 class UserSerializer(serializers.ModelSerializer):
+    """Сериализатор пользователя."""
+
     other_users = serializers.SerializerMethodField()
 
     class Meta:
@@ -15,6 +17,8 @@ class UserSerializer(serializers.ModelSerializer):
         ]
 
     def get_other_users(self, obj):
+        """Формирует поле с телефонами профилей применивших инвайт-код текущего пользователя."""
+
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             user = request.user
@@ -23,6 +27,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class InviteCodeSerializer(serializers.ModelSerializer):
+    """Сериализатор активации инвайт-кода."""
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user')

@@ -6,6 +6,7 @@ from users.models import User
 
 
 class PhoneValidator:
+    """Валидатор номера телефона."""
 
     def __init__(self, phone_number):
         self.phone_number = phone_number
@@ -20,6 +21,7 @@ class PhoneValidator:
 
 
 class InviteCodeValidator:
+    """Валидатор инвайт-кода."""
 
     def __init__(self, user):
         self.user = user
