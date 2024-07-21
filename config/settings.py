@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'crispy_forms',
     'crispy_bootstrap5',
+    'drf_yasg',
     'rest_framework',
     'rest_framework_simplejwt',
     'main',
